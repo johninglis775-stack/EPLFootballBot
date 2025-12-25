@@ -6,7 +6,8 @@ from schemas.csv_schema import CSV_HEADERS
 from schemas.coverage_schema import empty_coverage
 from outputs.writers import write_csv, write_json, write_notes
 from outputs.raw_store import save_raw
-
+from dateutil import tz
+UK_TZ = tz.gettz("Europe/London")
 def run(out_dir, token):
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     coverage = empty_coverage()
@@ -74,7 +75,8 @@ def run(out_dir, token):
             "MatchDate": kickoff.date().isoformat(),
             "KickoffTimeUTC": kickoff.time().strftime("%H:%M"),
             "KickoffDateTimeUTC": kickoff.isoformat(),
-            "KickoffTimeLocal": kickoff.astimezone().time().strftime("%H:%M"),
+            "KickoffTimeLocal": kickoff.astimezone(UK_TZ).time().strftime("%H:%M"),
+
             "HomeTeam": (m.get("homeTeam", {}) or {}).get("name", "") or "",
             "AwayTeam": (m.get("awayTeam", {}) or {}).get("name", "") or "",
             "HomeTeamId": (m.get("homeTeam", {}) or {}).get("id", "") or "",
