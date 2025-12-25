@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from dateutil import parser
-
+from pathlib import Path
 from providers.fixtures_football_data import get_scheduled_fixtures
 from schemas.csv_schema import CSV_HEADERS
 from schemas.coverage_schema import empty_coverage
