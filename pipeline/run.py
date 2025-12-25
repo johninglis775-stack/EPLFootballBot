@@ -7,8 +7,8 @@ from schemas.coverage_schema import empty_coverage
 from outputs.writers import write_csv, write_json, write_notes
 from outputs.raw_store import save_raw
 
-
 def run(out_dir, token):
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
     coverage = empty_coverage()
     now_utc = datetime.now(timezone.utc).isoformat()
     coverage["run_date_utc"] = now_utc
