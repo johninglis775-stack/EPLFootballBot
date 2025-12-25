@@ -1,0 +1,74 @@
+# EPL FootballBot — Version 1.0 (Locked)
+
+**Version:** 1.0  
+**Status:** SPEC LOCKED — READY FOR IMPLEMENTATION
+
+## Purpose
+EPL FootballBot v1.0 is a **pre-match data collection tool** for the English Premier League.
+
+It provides **data only**:
+- no predictions
+- no betting logic
+- no ratings
+- no opinions
+
+All interpretation happens outside the bot.
+
+## Artefacts produced (every run)
+FootballBot always produces:
+1. `epl_fixtures.csv` — one row per fixture (stable schema; blanks allowed)
+2. `coverage.json` — machine diagnostics (OK / PARTIAL / NO_DATA / FAILED)
+3. `notes.txt` — human summary of what happened
+
+Even on NO_DATA days:
+- `epl_fixtures.csv` exists (header only)
+- `coverage.json` exists (status = NO_DATA)
+- `notes.txt` exists (clear reason)
+
+## Data sources
+**Fixtures & Context (Source of Truth)**
+- football-data API (EPL fixtures, gameweek, kickoff times, teams/IDs, standings, match history)
+
+**Odds (Enrichment Only)**
+- Sportbex (soccer odds endpoints: 1X2, O/U 2.5, BTTS; Asian markets optional)
+
+### Non-negotiable rules
+- football-data defines which fixtures exist
+- Sportbex never creates fixtures; it only enriches confirmed fixtures
+- Missing data is left blank and explicitly reported
+- Derived fields are mechanical only (timezone conversion, date diffs, sums/averages)
+
+## Fixture discovery rule (v1.0)
+- Determine “next scheduled gameweek” using football-data scheduled EPL fixtures:
+  - target_gameweek = minimum gameweek among scheduled fixtures
+  - select all fixtures in target_gameweek
+- If zero fixtures returned → NO_DATA
+
+## Odds ↔ fixture join rule (v1.0)
+Odds are attached only when:
+- competition matches (EPL)
+- teams match under basic normalization rules
+- kickoff time within ±60 minutes
+
+If no match:
+- odds fields remain blank
+- diagnostic counters increment
+- fixture row still written
+
+## Output schema
+The authoritative field-level schema is defined in:
+- `docs/field_level_data_spec.md`
+
+Schema stability:
+- column order is stable in v1.x
+- new columns may be appended only
+- breaking changes require v2.0
+
+## Status semantics (v1.0)
+- NO_DATA: no scheduled EPL fixtures returned by football-data
+- OK: fixtures exist and required markets present (as defined in the field spec)
+- PARTIAL: fixtures exist but any required data is missing
+- FAILED: cannot determine fixtures at all (provider/auth/down)
+
+---
+This document freezes the v1.0 contract. Any change requires a version bump.
